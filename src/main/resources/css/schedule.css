@@ -1,0 +1,79 @@
+
+.root {
+     -fx-background-image: url("/images/shine.jpg");
+}
+
+.date-picker .combo-box {
+    -fx-background-insets:0px ;
+    -fx-border-width: 0px;
+  }
+
+
+.date-picker .text-field{
+    -fx-background-radius:0px ;
+    -fx-border-color: transparent;
+}
+/*
+.date-picker .arrow-button{
+    -fx-background-radius:0px ;
+    -fx-background-color: #232323;
+}
+
+.date-picker .arrow-button .arrow{
+    -fx-background-radius:0px ;
+    -fx-background-color: #1783CC;
+}*/
+
+
+.date-picker .arrow-button:hover .arrow{
+    -fx-background-radius:0px ;
+    -fx-background-color: #40a9ef;
+ }
+
+ .date-picker .button {
+    -fx-background-color: transparent;
+    -fx-border-color:transparent;
+    -fx-pref-height: 38px;
+    -fx-pref-width: 38px;
+ }
+
+ .date-picker .button:hover {
+    -fx-border-color:transparent;
+    -fx-pref-height: 35px;
+    -fx-pref-width: 35px;
+ }
+
+.date-picker .button .arrow:pressed {
+    -fx-border-color:transparent;
+    -fx-pref-height: 35px;
+    -fx-pref-width: 35px;
+ }
+
+ .date-picker .cell {
+    -fx-background-color: #2247ab;
+    -fx-pref-width:20px ;
+    -fx-pref-height:25px ;
+ }
+
+.date-picker .cell:hover {
+    -fx-background-color: #1783CC;
+    -fx-pref-width:20px ;
+    -fx-pref-height:25px ;
+}
+
+.date-picker .cell:focused {
+    -fx-background-color:#11659e;
+    -fx-pref-width:20px ;
+    -fx-pref-height:25px ;
+ }
+
+.close-button {
+    -fx-background-color: -fx-mark-color;
+    -fx-shape: "M 0,0 H1 L 4,3 7,0 H8 V1 L 5,4 8,7 V8 H7 L 4,5 1,8 H0 V7 L 3,4 0,1 Z";
+    -fx-scale-shape: false;
+    -fx-effect: dropshadow(two-pass-box , rgba(255, 255, 255, 0.4), 1, 0.0 , 0, 1);
+}
+
+.close-button:hover {
+    -fx-background-color: derive(-fx-mark-color, -30%);
+}
