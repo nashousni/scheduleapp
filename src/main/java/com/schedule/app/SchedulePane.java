@@ -1,5 +1,6 @@
 package com.schedule.app;
 
+import com.calendarfx.view.CalendarView;
 import com.schedule.storage.MapDbStorage;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -41,6 +42,8 @@ public class SchedulePane extends BorderPane {
 
     private DatePicker datePicker;
 
+    private CalendarView calendarView;
+
     private Button buttonRegister;
 
     private final VBox eventsBox = new VBox();
@@ -61,11 +64,13 @@ public class SchedulePane extends BorderPane {
 
         taskManager = TaskManager.getInstance();
         toDoList = FXCollections.observableArrayList();
+        calendarView = new CalendarView();
+        calendarView.showMonthPage();
         tableView = createTaskTableView();
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableView.getSelectionModel().getSelectedItems().addListener(this::tableViewChangeListener);
         mainPane = new MasterDetailPane();
-        mainPane.setMasterNode(tableView);
+        mainPane.setMasterNode(calendarView);
         mainPane.setDetailNode(createScriptValidationOkNode());
         mainPane.setShowDetailNode(false);
         mainPane.setDetailSide(Side.BOTTOM);
@@ -83,8 +88,8 @@ public class SchedulePane extends BorderPane {
         Text dateOfBirthLabel = new Text("Choose Date");
         datePicker = new DatePicker();
         datePicker.getEditor().textProperty().addListener((observable, oldText, newText) -> validateDateFormat(newText));
-        buttonRegister = new Button("Register");
 
+        buttonRegister = new Button("Register");
         buttonRegister.getStyleClass().add("button-register");
         buttonRegister.disableProperty().bind(nameTextField.textProperty().isEmpty().or(datePicker.getEditor().textProperty().isEmpty()));
         buttonRegister.setOnAction(event -> createTask());

@@ -8,10 +8,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
 public class MapDbStorage {
@@ -54,7 +51,7 @@ public class MapDbStorage {
     }
 
 
-    public HashMap<UUID, Task> getTasksMap() {
+    public Map<UUID, Task> getTasksMap() {
         return new HashMap(tasksMap);
     }
 

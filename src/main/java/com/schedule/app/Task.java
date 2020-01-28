@@ -12,16 +12,20 @@ public class Task {
 
     private long eventDate;
 
+    private long beginTime;
+
+    private long endTime;
+
     public Task(String id, String name, long date) {
         this.id = Objects.requireNonNull(id);
         this.name = Objects.requireNonNull(name);
         this.eventDate = date;
     }
 
-    public Task(String id, String name, String description,  long date) {
+    public Task(String id, String name, String description, long date) {
         this.id = Objects.requireNonNull(id);
         this.name = Objects.requireNonNull(name);
-        this.description =description;
+        this.description = description;
         this.eventDate = date;
     }
 
@@ -51,6 +55,22 @@ public class Task {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public long getBeginTime() {
+        return beginTime;
+    }
+
+    public void setBeginTime(long beginTime) {
+        this.beginTime = beginTime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
     }
 
     @Override

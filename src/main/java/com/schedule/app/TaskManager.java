@@ -24,19 +24,19 @@ public class TaskManager {
 
     public boolean updateTask(Task task) {
         Task task1 = findTask(task.getName());
-        if(task1 != null) {
+        if (task1 != null) {
             task1.setEventDate(task.getEventDate());
             return true;
         }
         return false;
     }
 
-    public Task findTask (String taskName) {
-        return tasks.stream().filter(task -> task.getName().equals(taskName)).findFirst().orElse(null);
+    public Task findTask(String taskId) {
+        return tasks.stream().filter(task -> task.getName().equals(taskId)).findFirst().orElse(null);
     }
 
-    public Optional<Task> findOptionalTask (String taskName) {
-        return tasks.stream().filter(task -> task.getName().equals(taskName)).findFirst();
+    public Optional<Task> findOptionalTask(String taskId) {
+        return tasks.stream().filter(task -> task.getName().equals(taskId)).findFirst();
     }
 
     public List<Task> getTasks() {
