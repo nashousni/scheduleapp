@@ -24,7 +24,6 @@
     -fx-background-color: #1783CC;
 }*/
 
-
 .date-picker .arrow-button:hover .arrow{
     -fx-background-radius:0px ;
     -fx-background-color: #40a9ef;
@@ -76,4 +75,11 @@
 
 .close-button:hover {
     -fx-background-color: derive(-fx-mark-color, -30%);
+}
+
+.button-register {
+    -fx-background-color: linear-gradient(#ff5400, #be1d00);
+    -fx-background-radius:  30;
+    -fx-background-insets: 0;
+    -fx-text-fill: white;
 }

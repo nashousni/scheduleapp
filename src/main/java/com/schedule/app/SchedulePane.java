@@ -27,7 +27,6 @@ import org.controlsfx.control.textfield.TextFields;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
@@ -83,15 +82,10 @@ public class SchedulePane extends BorderPane {
 
         Text dateOfBirthLabel = new Text("Choose Date");
         datePicker = new DatePicker();
-        datePicker.getEditor().textProperty().addListener((observable, oldvalue, newvalue) -> {
-            validateDateFormat(newvalue);
-        });
+        datePicker.getEditor().textProperty().addListener((observable, oldText, newText) -> validateDateFormat(newText));
         buttonRegister = new Button("Register");
 
-        buttonRegister.setStyle(" -fx-background-color: linear-gradient(#ff5400, #be1d00);\n" +
-                "    -fx-background-radius: 30;\n" +
-                "    -fx-background-insets: 0;\n" +
-                "    -fx-text-fill: white;");
+        buttonRegister.getStyleClass().add("button-register");
         buttonRegister.disableProperty().bind(nameTextField.textProperty().isEmpty().or(datePicker.getEditor().textProperty().isEmpty()));
         buttonRegister.setOnAction(event -> createTask());
 
@@ -277,7 +271,7 @@ public class SchedulePane extends BorderPane {
         box.setAlignment(Pos.TOP_CENTER);
         Button closeButton = new Button();
         closeButton.getStyleClass().add("close-button");
-        closeButton.setOnAction(event ->  Platform.runLater(() -> mainPane.setShowDetailNode(false)));
+        closeButton.setOnAction(event -> Platform.runLater(() -> mainPane.setShowDetailNode(false)));
         box.getChildren().add(closeButton);
         root.getChildren().add(box);
         AnchorPane.setTopAnchor(box, 0.0);
