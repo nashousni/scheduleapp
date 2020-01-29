@@ -1,4 +1,4 @@
-package com.schedule.app;
+package com.schedule.utils;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;

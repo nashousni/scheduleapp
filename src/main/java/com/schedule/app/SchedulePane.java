@@ -1,7 +1,10 @@
 package com.schedule.app;
 
 import com.calendarfx.view.CalendarView;
+import com.jfoenix.controls.JFXButton;
 import com.schedule.storage.MapDbStorage;
+import com.schedule.utils.Glyph;
+import com.schedule.utils.ScheduleAlerts;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -48,9 +51,9 @@ public class SchedulePane extends BorderPane {
 
     private final VBox eventsBox = new VBox();
 
-    private Label noEventLabel = new Label("NO EVENT FOUND");
+    private final JFXButton tableViewButton;
 
-    private StackPane stackPane = new StackPane(noEventLabel);
+    private final JFXButton calendarViewButton;
 
     private final TableView<Task> tableView;
 
@@ -67,13 +70,31 @@ public class SchedulePane extends BorderPane {
         calendarView = new CalendarView();
         calendarView.showMonthPage();
         tableView = createTaskTableView();
+        tableView.setPrefHeight(500);
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableView.getSelectionModel().getSelectedItems().addListener(this::tableViewChangeListener);
         mainPane = new MasterDetailPane();
-        mainPane.setMasterNode(calendarView);
+        mainPane.setMasterNode(tableView);
         mainPane.setDetailNode(createScriptValidationOkNode());
         mainPane.setShowDetailNode(false);
         mainPane.setDetailSide(Side.BOTTOM);
+        tableViewButton = new JFXButton("Table view", Glyph.createAwesomeFont('\uf093').color("white"));
+        tableViewButton.setDisable(true);
+        calendarViewButton = new JFXButton("Calendar view", Glyph.createAwesomeFont('\uf019').color("white"));
+        tableViewButton.setOnAction(event -> {
+            if (mainPane.getMasterNode() != tableView) {
+                Platform.runLater(() -> mainPane.setMasterNode(tableView));
+                tableViewButton.setDisable(true);
+                calendarViewButton.setDisable(false);
+            }
+        });
+        calendarViewButton.setOnAction(event -> {
+            if (mainPane.getMasterNode() != calendarView) {
+                Platform.runLater(() -> mainPane.setMasterNode(calendarView));
+                calendarViewButton.setDisable(true);
+                tableViewButton.setDisable(false);
+            }
+        });
 
         EventHandler<KeyEvent> enterKeyEventHandler = event -> {
             if (KeyCode.ENTER.equals(event.getCode()) && buttonRegister.disableProperty().not().get()) {
@@ -94,8 +115,6 @@ public class SchedulePane extends BorderPane {
         buttonRegister.disableProperty().bind(nameTextField.textProperty().isEmpty().or(datePicker.getEditor().textProperty().isEmpty()));
         buttonRegister.setOnAction(event -> createTask());
 
-        stackPane.setPrefHeight(400);
-
         eventsBox.getChildren().addAll(mainPane);
 
 
@@ -103,6 +122,8 @@ public class SchedulePane extends BorderPane {
 
         gridPane.add(nameLabel, 0, 0);
         gridPane.add(nameTextField, 1, 0);
+        gridPane.add(calendarViewButton, 9,0);
+        gridPane.add(tableViewButton, 10,0);
         gridPane.add(dateOfBirthLabel, 0, 1);
         gridPane.add(datePicker, 1, 1);
         gridPane.add(buttonRegister, 2, 1);
