@@ -3,6 +3,7 @@ package com.schedule.app;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class TaskManager {
 
@@ -15,6 +16,10 @@ public class TaskManager {
     }
 
     public boolean addTask(Task task) {
+        boolean taskAlreadyExists = tasks.stream().anyMatch(task1 -> task1.equals(task));
+        if (taskAlreadyExists) {
+            throw new TaskManagementException(String.format("Task '%s' already exists at this date", task.getName()));
+        }
         return tasks.add(task);
     }
 
@@ -23,7 +28,7 @@ public class TaskManager {
     }
 
     public boolean updateTask(Task task) {
-        Task task1 = findTask(task.getName());
+        Task task1 = findTask(task.getId());
         if (task1 != null) {
             task1.setEventDate(task.getEventDate());
             return true;
@@ -32,7 +37,11 @@ public class TaskManager {
     }
 
     public Task findTask(String taskId) {
-        return tasks.stream().filter(task -> task.getName().equals(taskId)).findFirst().orElse(null);
+        return tasks.stream().filter(task -> task.getId().equals(taskId)).findFirst().orElse(null);
+    }
+
+    public List<Task> findTasks (String taskName) {
+        return tasks.stream().filter(task -> task.getName().equals(taskName)).collect(Collectors.toList());
     }
 
     public Optional<Task> findOptionalTask(String taskId) {

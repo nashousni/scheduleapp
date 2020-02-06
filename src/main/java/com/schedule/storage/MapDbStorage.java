@@ -42,8 +42,7 @@ public class MapDbStorage {
         // it is not recommended to use memory map (mmap) files  on Windows (crash)
         // http://www.mapdb.org/blog/mmap_files_alloc_and_jvm_crash/
         if (!SystemUtils.IS_OS_WINDOWS) {
-            maker.fileMmapEnableIfSupported()
-                    .fileMmapPreclearDisable();
+            maker.fileMmapEnableIfSupported().fileMmapPreclearDisable();
         }
         db = maker.make();
 
@@ -62,11 +61,11 @@ public class MapDbStorage {
         return instance;
     }
 
-    public static UUID checkNodeId(String nodeId) {
+    public static UUID checkNodeId(String taskId) {
         try {
-            return UUID.fromString(nodeId);
+            return UUID.fromString(taskId);
         } catch (IllegalArgumentException e) {
-            throw new IllegalTaskException("Node id '" + nodeId + "' is expected to be a UUID");
+            throw new IllegalTaskException("Task id '" + taskId + "' is expected to be a UUID");
         }
     }
 

@@ -83,4 +83,17 @@ public class Task {
                 '}';
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, eventDate);
+    }
+
+    @Override
+    public boolean equals(Object value) {
+        if (value instanceof Task) {
+            Task task = (Task) value;
+            return task.getName().equals(name) && task.getEventDate() == eventDate;
+        }
+        return false;
+    }
 }
