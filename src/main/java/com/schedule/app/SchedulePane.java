@@ -62,6 +62,8 @@ public class SchedulePane extends BorderPane {
 
     private MapDbStorage mapDbStorage = MapDbStorage.getInstance();
 
+    private final Font tableFont;
+
     SchedulePane() {
 
         taskManager = TaskManager.getInstance();
@@ -78,6 +80,7 @@ public class SchedulePane extends BorderPane {
         mainPane.setDetailNode(createScriptValidationOkNode());
         mainPane.setShowDetailNode(false);
         mainPane.setDetailSide(Side.BOTTOM);
+        tableFont = Font.font("Helvetica", FontWeight.BOLD, 13);
 
         tableViewButton = new JFXButton(RESOURCE_BUNDLE.getString("TableView"), Glyph.createAwesomeFont('\uf093').color("white"));
         calendarViewButton = new JFXButton(RESOURCE_BUNDLE.getString("CalendarView"), Glyph.createAwesomeFont('\uf019').color("white"));
@@ -241,8 +244,10 @@ public class SchedulePane extends BorderPane {
                     setText(null);
                     setGraphic(null);
                 } else {
+                    setTextAlignment(TextAlignment.CENTER);
                     setText(task.getName());
                     setTextFill(LocalDate.ofEpochDay(task.getEventDate()).isBefore(LocalDate.now()) ? Color.RED : Color.BLACK);
+                    setFont(tableFont);
                     setOnMouseClicked(event -> {
                         if (event.getClickCount() == 2) {
                             TaskViewer taskViewer = new TaskViewer(task);
@@ -276,7 +281,10 @@ public class SchedulePane extends BorderPane {
                     setGraphic(null);
                 } else {
                     LocalDate localDate = LocalDate.ofEpochDay(item);
+                    setTextAlignment(TextAlignment.CENTER);
                     setText(localDate.format(DateTimeFormatter.ofPattern("dd/MM/yy")));
+                    setTextFill(LocalDate.ofEpochDay(item).isBefore(LocalDate.now()) ? Color.RED : Color.BLACK);
+                    setFont(tableFont);
                 }
             }
         };
