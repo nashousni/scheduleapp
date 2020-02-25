@@ -37,7 +37,7 @@ public class MapDbStorage {
     }
 
     private void init() {
-        DBMaker.Maker maker = DBMaker.fileDB("file.db").transactionEnable().closeOnJvmShutdown();
+        DBMaker.Maker maker = DBMaker.fileDB("$HOME.file.db").transactionEnable().closeOnJvmShutdown();
 
         // it is not recommended to use memory map (mmap) files  on Windows (crash)
         // http://www.mapdb.org/blog/mmap_files_alloc_and_jvm_crash/
