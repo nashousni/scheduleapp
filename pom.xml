@@ -33,7 +33,7 @@
         <maven.versions.version>2.7</maven.versions.version>
 
         <assertj.version>3.11.0</assertj.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <jimfs.version>1.1</jimfs.version>
         <commonslang3.version>3.4</commonslang3.version>
         <commonslogging.version>1.2</commonslogging.version>
