@@ -11,11 +11,9 @@ import java.util.UUID;
 
 public class TaskTest {
 
-    private Task task;
-
     @Test
     public void test() {
-        task = new Task(UUID.randomUUID().toString(), "anniv", "", 12435);
+        Task task = new Task(UUID.randomUUID().toString(), "anniv", "", 12435);
 
         assertEquals("anniv", task.getName());
         assertTrue(task.getDescription().isEmpty());
@@ -29,6 +27,9 @@ public class TaskTest {
 
         task.setEventDate(124356);
         assertEquals(124356, task.getEventDate());
+
+        Task task2 = new Task(UUID.randomUUID().toString(), "anniversary", "", 124356);
+        assertTrue(task.equals(task2));
 
     }
 }

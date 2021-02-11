@@ -8,10 +8,7 @@ import org.apache.commons.lang3.SystemUtils;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
 public class MapDbStorage {
@@ -40,13 +37,12 @@ public class MapDbStorage {
     }
 
     private void init() {
-        DBMaker.Maker maker = DBMaker.fileDB("file.db").transactionEnable().closeOnJvmShutdown();
+        DBMaker.Maker maker = DBMaker.fileDB(System.getProperty("user.home")+ "/file.db").transactionEnable().closeOnJvmShutdown();
 
         // it is not recommended to use memory map (mmap) files  on Windows (crash)
         // http://www.mapdb.org/blog/mmap_files_alloc_and_jvm_crash/
         if (!SystemUtils.IS_OS_WINDOWS) {
-            maker.fileMmapEnableIfSupported()
-                    .fileMmapPreclearDisable();
+            maker.fileMmapEnableIfSupported().fileMmapPreclearDisable();
         }
         db = maker.make();
 
@@ -54,7 +50,7 @@ public class MapDbStorage {
     }
 
 
-    public HashMap<UUID, Task> getTasksMap() {
+    public Map<UUID, Task> getTasksMap() {
         return new HashMap(tasksMap);
     }
 
@@ -65,11 +61,11 @@ public class MapDbStorage {
         return instance;
     }
 
-    public static UUID checkNodeId(String nodeId) {
+    public static UUID checkNodeId(String taskId) {
         try {
-            return UUID.fromString(nodeId);
+            return UUID.fromString(taskId);
         } catch (IllegalArgumentException e) {
-            throw new IllegalTaskException("Node id '" + nodeId + "' is expected to be a UUID");
+            throw new IllegalTaskException("Task id '" + taskId + "' is expected to be a UUID");
         }
     }
 

@@ -1,6 +1,10 @@
 package com.schedule.app;
 
+import com.calendarfx.view.CalendarView;
+import com.jfoenix.controls.JFXButton;
 import com.schedule.storage.MapDbStorage;
+import com.schedule.utils.Glyph;
+import com.schedule.utils.ScheduleAlerts;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -10,6 +14,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -18,9 +23,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-import javafx.scene.text.TextFlow;
+import javafx.scene.text.*;
 import org.apache.commons.validator.GenericValidator;
 import org.controlsfx.control.MasterDetailPane;
 import org.controlsfx.control.textfield.TextFields;
@@ -41,13 +44,15 @@ public class SchedulePane extends BorderPane {
 
     private DatePicker datePicker;
 
+    private CalendarView calendarView;
+
     private Button buttonRegister;
 
     private final VBox eventsBox = new VBox();
 
-    private Label noEventLabel = new Label("NO EVENT FOUND");
+    private final JFXButton tableViewButton;
 
-    private StackPane stackPane = new StackPane(noEventLabel);
+    private final JFXButton calendarViewButton;
 
     private final TableView<Task> tableView;
 
@@ -57,18 +62,43 @@ public class SchedulePane extends BorderPane {
 
     private MapDbStorage mapDbStorage = MapDbStorage.getInstance();
 
+    private final Font tableFont;
+
     SchedulePane() {
 
         taskManager = TaskManager.getInstance();
         toDoList = FXCollections.observableArrayList();
+        calendarView = new CalendarView();
+        calendarView.setPrefHeight(500);
+        calendarView.showMonthPage();
         tableView = createTaskTableView();
+        tableView.setPrefHeight(500);
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableView.getSelectionModel().getSelectedItems().addListener(this::tableViewChangeListener);
         mainPane = new MasterDetailPane();
-        mainPane.setMasterNode(tableView);
+        mainPane.setMasterNode(calendarView);
         mainPane.setDetailNode(createScriptValidationOkNode());
         mainPane.setShowDetailNode(false);
         mainPane.setDetailSide(Side.BOTTOM);
+        tableFont = Font.font("Helvetica", FontWeight.BOLD, 13);
+
+        tableViewButton = new JFXButton(RESOURCE_BUNDLE.getString("TableView"), Glyph.createAwesomeFont('\uf093').color("white"));
+        calendarViewButton = new JFXButton(RESOURCE_BUNDLE.getString("CalendarView"), Glyph.createAwesomeFont('\uf019').color("white"));
+        calendarViewButton.setDisable(true);
+        tableViewButton.setOnAction(event -> CreateConcurrentTask(() ->{
+            if (mainPane.getMasterNode() != tableView) {
+                Platform.runLater(() -> mainPane.setMasterNode(tableView));
+                tableViewButton.setDisable(true);
+                calendarViewButton.setDisable(false);
+            }
+        }));
+        calendarViewButton.setOnAction(event -> CreateConcurrentTask(() -> {
+            if (mainPane.getMasterNode() != calendarView) {
+                Platform.runLater(() -> mainPane.setMasterNode(calendarView));
+                calendarViewButton.setDisable(true);
+                tableViewButton.setDisable(false);
+            }
+        }));
 
         EventHandler<KeyEvent> enterKeyEventHandler = event -> {
             if (KeyCode.ENTER.equals(event.getCode()) && buttonRegister.disableProperty().not().get()) {
@@ -83,13 +113,11 @@ public class SchedulePane extends BorderPane {
         Text dateOfBirthLabel = new Text("Choose Date");
         datePicker = new DatePicker();
         datePicker.getEditor().textProperty().addListener((observable, oldText, newText) -> validateDateFormat(newText));
-        buttonRegister = new Button("Register");
 
+        buttonRegister = new Button("Register");
         buttonRegister.getStyleClass().add("button-register");
         buttonRegister.disableProperty().bind(nameTextField.textProperty().isEmpty().or(datePicker.getEditor().textProperty().isEmpty()));
         buttonRegister.setOnAction(event -> createTask());
-
-        stackPane.setPrefHeight(400);
 
         eventsBox.getChildren().addAll(mainPane);
 
@@ -98,6 +126,8 @@ public class SchedulePane extends BorderPane {
 
         gridPane.add(nameLabel, 0, 0);
         gridPane.add(nameTextField, 1, 0);
+        gridPane.add(calendarViewButton, 9, 0);
+        gridPane.add(tableViewButton, 10, 0);
         gridPane.add(dateOfBirthLabel, 0, 1);
         gridPane.add(datePicker, 1, 1);
         gridPane.add(buttonRegister, 2, 1);
@@ -112,14 +142,36 @@ public class SchedulePane extends BorderPane {
         setCenter(eventsBox);
 
         mapDbStorage.getTasksMap().forEach((key, value) -> {
-            taskManager.addTask(value);
+            try {
+                taskManager.addTask(value);
+            } catch (TaskManagementException ignored) {
+            }
             refreshView();
         });
     }
 
+    private void CreateConcurrentTask(Runnable runnable) {
+        javafx.concurrent.Task task = new javafx.concurrent.Task() {
+            @Override
+            protected Integer call() throws Exception {
+                getScene().setCursor(Cursor.WAIT);
+                runnable.run();
+                getScene().setCursor(Cursor.DEFAULT);
+                return 0;
+            }
+        };
+        Thread th = new Thread(task);
+        th.setDaemon(true);
+        th.start();
+    }
+
     private void createTask() {
         Task task = new Task(UUID.randomUUID().toString(), nameTextField.getText(), datePicker.getValue().toEpochDay());
-        taskManager.addTask(task);
+        try {
+            taskManager.addTask(task);
+        } catch (TaskManagementException e) {
+            ScheduleAlerts.showDialogError(e.getMessage());
+        }
         refreshView();
     }
 
@@ -192,8 +244,10 @@ public class SchedulePane extends BorderPane {
                     setText(null);
                     setGraphic(null);
                 } else {
+                    setTextAlignment(TextAlignment.CENTER);
                     setText(task.getName());
                     setTextFill(LocalDate.ofEpochDay(task.getEventDate()).isBefore(LocalDate.now()) ? Color.RED : Color.BLACK);
+                    setFont(tableFont);
                     setOnMouseClicked(event -> {
                         if (event.getClickCount() == 2) {
                             TaskViewer taskViewer = new TaskViewer(task);
@@ -227,7 +281,10 @@ public class SchedulePane extends BorderPane {
                     setGraphic(null);
                 } else {
                     LocalDate localDate = LocalDate.ofEpochDay(item);
+                    setTextAlignment(TextAlignment.CENTER);
                     setText(localDate.format(DateTimeFormatter.ofPattern("dd/MM/yy")));
+                    setTextFill(LocalDate.ofEpochDay(item).isBefore(LocalDate.now()) ? Color.RED : Color.BLACK);
+                    setFont(tableFont);
                 }
             }
         };
@@ -235,8 +292,10 @@ public class SchedulePane extends BorderPane {
 
     private void validateDateFormat(String value) {
         if (isValidFormat(value) || value.isEmpty()) {
+            datePicker.getEditor().getStyleClass().remove("bad_date_format");
             Platform.runLater(() -> mainPane.setShowDetailNode(false));
         } else {
+            datePicker.getEditor().getStyleClass().add("bad-date-format");
             mainPane.setShowDetailNode(true);
         }
     }
@@ -246,7 +305,8 @@ public class SchedulePane extends BorderPane {
     }
 
     private Node createScriptValidationOkNode() {
-        Text message = new Text("Bad Date Format");
+        Text message = new Text(RESOURCE_BUNDLE.getString("WrongDateFormat")+" : dd/MM/yyyy");
+        message.setFont(Font.font("Helvetica", FontWeight.BOLD, 20));
         return createScriptValidationNode(message, 20, TextAlignment.CENTER, Color.web("#e85f5f"));
     }
 
