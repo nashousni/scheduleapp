@@ -26,6 +26,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.*;
 import org.apache.commons.validator.GenericValidator;
 import org.controlsfx.control.MasterDetailPane;
+import org.controlsfx.control.Notifications;
 import org.controlsfx.control.textfield.TextFields;
 
 import java.time.LocalDate;
@@ -40,11 +41,11 @@ public class SchedulePane extends BorderPane {
 
     private final TaskManager taskManager;
 
-    private TextField nameTextField;
+    private final TextField nameTextField;
 
-    private DatePicker datePicker;
+    private final DatePicker datePicker;
 
-    private CalendarView calendarView;
+    private final CalendarView calendarView;
 
     private Button buttonRegister;
 
@@ -110,7 +111,7 @@ public class SchedulePane extends BorderPane {
         nameTextField = TextFields.createClearableTextField();
         nameTextField.addEventHandler(KeyEvent.KEY_PRESSED, enterKeyEventHandler);
 
-        Text dateOfBirthLabel = new Text("Choose Date");
+        Text dateLabel = new Text("Choose Date");
         datePicker = new DatePicker();
         datePicker.getEditor().textProperty().addListener((observable, oldText, newText) -> validateDateFormat(newText));
 
@@ -128,7 +129,7 @@ public class SchedulePane extends BorderPane {
         gridPane.add(nameTextField, 1, 0);
         gridPane.add(calendarViewButton, 9, 0);
         gridPane.add(tableViewButton, 10, 0);
-        gridPane.add(dateOfBirthLabel, 0, 1);
+        gridPane.add(dateLabel, 0, 1);
         gridPane.add(datePicker, 1, 1);
         gridPane.add(buttonRegister, 2, 1);
 
