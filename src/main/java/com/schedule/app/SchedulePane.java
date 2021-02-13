@@ -2,8 +2,8 @@ package com.schedule.app;
 
 import com.calendarfx.view.CalendarView;
 import com.jfoenix.controls.JFXButton;
-import com.schedule.storage.MapDbStorage;
-import com.schedule.storage.MySqlAppStorage;
+import com.schedule.storage.AppStorage;
+import com.schedule.storage.StorageGenerator;
 import com.schedule.utils.Glyph;
 import com.schedule.utils.ScheduleAlerts;
 import javafx.application.Platform;
@@ -58,19 +58,18 @@ public class SchedulePane extends BorderPane {
 
     private final TableView<Task> tableView;
 
-    private ObservableList<Task> toDoList;
+    private final ObservableList<Task> toDoList;
 
     private final MasterDetailPane mainPane;
 
-    private MapDbStorage mapDbStorage = MapDbStorage.getInstance();
-
-    private MySqlAppStorage mySqlAppStorage = MySqlAppStorage.getInstance();
+    private final AppStorage storage;
 
     private final Font tableFont;
 
     SchedulePane() {
 
-        taskManager = TaskManager.getInstance();
+        storage = new StorageGenerator("mapdb").getDb();
+        taskManager = TaskManager.getInstance(storage);
         toDoList = FXCollections.observableArrayList();
         calendarView = new CalendarView();
         calendarView.setPrefHeight(500);
@@ -89,7 +88,7 @@ public class SchedulePane extends BorderPane {
         tableViewButton = new JFXButton(RESOURCE_BUNDLE.getString("TableView"), Glyph.createAwesomeFont('\uf093').color("white"));
         calendarViewButton = new JFXButton(RESOURCE_BUNDLE.getString("CalendarView"), Glyph.createAwesomeFont('\uf019').color("white"));
         calendarViewButton.setDisable(true);
-        tableViewButton.setOnAction(event -> CreateConcurrentTask(() ->{
+        tableViewButton.setOnAction(event -> CreateConcurrentTask(() -> {
             if (mainPane.getMasterNode() != tableView) {
                 Platform.runLater(() -> mainPane.setMasterNode(tableView));
                 tableViewButton.setDisable(true);
@@ -145,11 +144,8 @@ public class SchedulePane extends BorderPane {
         setTop(gridPane);
         setCenter(eventsBox);
 
-        mapDbStorage.getTasksMap().forEach((key, value) -> {
-            try {
-                taskManager.addTask(value);
-            } catch (TaskManagementException ignored) {
-            }
+        storage.getTasks().forEach(value -> {
+            taskManager.saveTask(value);
             refreshView();
         });
     }
@@ -254,7 +250,7 @@ public class SchedulePane extends BorderPane {
                     setFont(tableFont);
                     setOnMouseClicked(event -> {
                         if (event.getClickCount() == 2) {
-                            TaskViewer taskViewer = new TaskViewer(task);
+                            TaskViewer taskViewer = new TaskViewer(task, taskManager);
                             Dialog<ButtonType> dialog = new Dialog<>();
                             dialog.setTitle(task.getName());
                             ButtonType save = new ButtonType(RESOURCE_BUNDLE.getString("Save"), ButtonBar.ButtonData.YES);
@@ -309,7 +305,7 @@ public class SchedulePane extends BorderPane {
     }
 
     private Node createScriptValidationOkNode() {
-        Text message = new Text(RESOURCE_BUNDLE.getString("WrongDateFormat")+" : dd/MM/yyyy");
+        Text message = new Text(RESOURCE_BUNDLE.getString("WrongDateFormat") + " : dd/MM/yyyy");
         message.setFont(Font.font("Helvetica", FontWeight.BOLD, 20));
         return createScriptValidationNode(message, 20, TextAlignment.CENTER, Color.web("#e85f5f"));
     }
@@ -350,9 +346,6 @@ public class SchedulePane extends BorderPane {
         toDoList.setAll(taskManager.getTasks());
         tableView.getItems().setAll(toDoList);
         tableView.refresh();
-
-        mapDbStorage.saveTasks(tableView.getItems());
-        mySqlAppStorage.saveTasks(tableView.getItems());
     }
 
 

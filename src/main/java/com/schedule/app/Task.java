@@ -9,7 +9,7 @@ public class Task {
 
     @Id
     @Column(name = "id")
-    private final String id;
+    private String id;
     @Column(name = "name")
     private String name;
     @Column(name = "description")
@@ -20,6 +20,10 @@ public class Task {
     private long beginTime;
     @Column(name = "endTime")
     private long endTime;
+
+    public Task() {
+
+    }
 
     public Task(String id, String name, long date) {
         this.id = Objects.requireNonNull(id);

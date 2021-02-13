@@ -11,9 +11,9 @@ import org.mapdb.DBMaker;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
-public class MapDbStorage {
+public class MapDbStorage implements AppStorage{
 
-    private ConcurrentMap<String, Date> tasksMap2; // Date instead of LocalDate because MabDb doesn't have LocalDate.Serializer(LocalDate == Java 8)
+    // Date instead of LocalDate because MabDb doesn't have LocalDate.Serializer(LocalDate == Java 8)
 
     private ConcurrentMap<UUID, Task> tasksMap;
 
@@ -31,16 +31,6 @@ public class MapDbStorage {
         db.commit();
     }
 
-    public void addTask(Task task) {
-        tasksMap.put(checkNodeId(task.getId()), new Task(task.getId(), task.getName(), task.getDescription(), task.getEventDate()));
-        db.commit();
-    }
-
-    public void deleteTask(Task task) {
-        tasksMap.remove(task);
-        db.commit();
-    }
-
     private void init() {
         DBMaker.Maker maker = DBMaker.fileDB(System.getProperty("user.home")+ "/file.db").transactionEnable().closeOnJvmShutdown();
 
@@ -55,8 +45,28 @@ public class MapDbStorage {
     }
 
 
-    public Map<UUID, Task> getTasksMap() {
-        return new HashMap(tasksMap);
+    @Override
+    public void addTask(Task task) {
+        tasksMap.put(checkNodeId(task.getId()), new Task(task.getId(), task.getName(), task.getDescription(), task.getEventDate()));
+        db.commit();
+    }
+
+    @Override
+    public void deleteTask(Task task) {
+        tasksMap.remove(UUID.fromString(task.getId()), task);
+        db.commit();
+    }
+
+    @Override
+    public void updateTask(Task task) {
+        Task task1 = tasksMap.get(UUID.fromString(task.getId()));
+        tasksMap.replace(UUID.fromString(task.getId()), task1, task);
+        db.commit();
+    }
+
+    @Override
+    public Collection<Task> getTasks() {
+        return tasksMap.values();
     }
 
     public static MapDbStorage getInstance() {
@@ -73,5 +83,4 @@ public class MapDbStorage {
             throw new IllegalTaskException("Task id '" + taskId + "' is expected to be a UUID");
         }
     }
-
 }

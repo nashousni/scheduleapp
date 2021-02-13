@@ -34,8 +34,11 @@ public class TaskViewer extends GridPane {
 
     private final Task task;
 
-    public TaskViewer(Task task) {
+    private final TaskManager taskManager;
+
+    public TaskViewer(Task task, TaskManager taskManager) {
         this.task = Objects.requireNonNull(task);
+        this.taskManager = taskManager;
         setVgap(5);
         setHgap(5);
         setPrefSize(330, 200);
@@ -65,6 +68,7 @@ public class TaskViewer extends GridPane {
         task.setName(nameTextField.getText());
         task.setEventDate(datePicker.getValue().toEpochDay());
         task.setDescription(descriptionArea.getText());
+        taskManager.updateTask(task);
     }
 
     public BooleanBinding okProperty() {
