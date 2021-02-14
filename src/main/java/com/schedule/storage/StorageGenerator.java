@@ -2,19 +2,19 @@ package com.schedule.storage;
 
 public class StorageGenerator {
 
-    private AppStorage generateur;
+    private final AppStorage generator;
 
     /**
      *
      * @param dbName : the database name
-     *               find database name in a set of names
+     *
      */
     public StorageGenerator(String dbName) {
-        generateur = StorageContainer.getInstance().getComponent(dbName);
+        generator = StorageContainer.getInstance().getComponent(dbName);
     }
 
     public AppStorage getDb() {
-        return generateur;
+        return generator;
     }
 
 }

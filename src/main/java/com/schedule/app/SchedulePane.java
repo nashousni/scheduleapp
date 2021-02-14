@@ -29,9 +29,15 @@ import org.apache.commons.validator.GenericValidator;
 import org.controlsfx.control.MasterDetailPane;
 import org.controlsfx.control.Notifications;
 import org.controlsfx.control.textfield.TextFields;
+import org.yaml.snakeyaml.Yaml;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
@@ -62,13 +68,25 @@ public class SchedulePane extends BorderPane {
 
     private final MasterDetailPane mainPane;
 
-    private final AppStorage storage;
+    private AppStorage storage;
 
     private final Font tableFont;
 
     SchedulePane() {
-
-        storage = new StorageGenerator("mapdb").getDb();
+        Yaml yaml = new Yaml();
+        String path= System.getProperty("user.home") + "/scheduleappconfig.yaml";
+        String dbType;
+        try {
+            Map<String, String> map = yaml.load(new FileInputStream(new File(path)));
+            dbType = map.get("db_type");
+            if("mysql".equals(dbType)) {
+                storage = new StorageGenerator("mysql").getDb();
+            } else {
+                storage = new StorageGenerator("mapdb").getDb();
+            }
+        } catch (FileNotFoundException e) {
+            storage = new StorageGenerator("mapdb").getDb();
+        }
         taskManager = TaskManager.getInstance(storage);
         toDoList = FXCollections.observableArrayList();
         calendarView = new CalendarView();
@@ -310,7 +328,8 @@ public class SchedulePane extends BorderPane {
         return createScriptValidationNode(message, 20, TextAlignment.CENTER, Color.web("#e85f5f"));
     }
 
-    private Node createScriptValidationNode(Text message, int prefHeight, TextAlignment alignment, Color backgroundColor) {
+    private Node createScriptValidationNode(Text message, int prefHeight, TextAlignment alignment, Color
+            backgroundColor) {
         AnchorPane root = new AnchorPane();
         Background background = new Background(new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY));
         root.setBackground(background);
